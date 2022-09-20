@@ -19,6 +19,24 @@ class TodoBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Hero(
+      tag: id, 
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: outlineColor
+          )
+        ),
+        child: Icon(
+          IconData(
+            codePoint,
+            fontFamily: 'MaterialIcons'
+          ),
+          color: color,
+          size: size,
+        ),
+      ));
   }
 }
