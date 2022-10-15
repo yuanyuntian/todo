@@ -1,17 +1,20 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqlite_api.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
-import 'package:todo/model/todo_model.dart';
-import 'package:todo/model/task_model.dart';
+import '../model/task_model.dart';
+import '../model/todo_model.dart';
 
-class DBProvider {
+class DBManager {
   static Database? _database;
 
-  DBProvider._();
-  static final DBProvider db = DBProvider._();
+  DBManager._();
+
+  static final DBManager db = DBManager._();
 
   var todos = [
     Todo(
@@ -48,13 +51,18 @@ class DBProvider {
         codePoint: Icons.fitness_center.codePoint),
   ];
 
-  Future<Database> get database async {
-    return _database ?? await initDB();
+  Future<String> get _localPath async {
+    final d = await getApplicationDocumentsDirectory();
+    return d.path;
   }
 
   get _dbPath async {
     String documentsDirectory = await _localPath;
     return p.join(documentsDirectory, "Todo.db");
+  }
+
+  Future<Database> get database async {
+    return _database ?? await initDB();
   }
 
   Future<bool> dbExists() async {
@@ -64,8 +72,8 @@ class DBProvider {
   initDB() async {
     String path = await _dbPath;
     return await openDatabase(path, version: 1, onOpen: (db) {},
-        onCreate: (Database db, int version) async {
-      print("DBProvider:: onCreate()");
+        onCreate: (db, version) async {
+      print("DB:onCreate()");
       await db.execute("CREATE TABLE Task ("
           "id TEXT PRIMARY KEY,"
           "name TEXT,"
@@ -83,46 +91,46 @@ class DBProvider {
 
   insertBulkTask(List<Task> tasks) async {
     final db = await database;
-    tasks.forEach((it) async {
-      var res = await db.insert("Task", it.toJson());
-      print("Task ${it.id} = $res");
+    tasks.forEach((element) async {
+      var res = await db.insert("task", element.toJson());
+      print("task ${element.id} == $res");
     });
   }
 
   insertBulkTodo(List<Todo> todos) async {
     final db = await database;
-    todos.forEach((it) async {
-      var res = await db.insert("Todo", it.toJson());
-      print("Todo ${it.id} = $res");
+    todos.forEach((element) async {
+      var res = db.insert("todo", element.toJson());
+      print("todo ${element.id} = $res");
     });
   }
 
   Future<List<Task>> getAllTask() async {
     final db = await database;
-    var result = await db.query('Task');
+    var result = await db.query('task');
     return result.map((it) => Task.fromJson(it)).toList();
   }
 
   Future<List<Todo>> getAllTodo() async {
     final db = await database;
-    var result = await db.query('Todo');
+    var result = await db.query('todo');
     return result.map((it) => Todo.fromJson(it)).toList();
   }
 
   Future<int> updateTodo(Todo todo) async {
     final db = await database;
     return db
-        .update('Todo', todo.toJson(), where: 'id = ?', whereArgs: [todo.id]);
+        .update("todo", todo.toJson(), where: 'id = ?', whereArgs: [todo.id]);
   }
 
   Future<int> removeTodo(Todo todo) async {
     final db = await database;
-    return db.delete('Todo', where: 'id = ?', whereArgs: [todo.id]);
+    return db.delete('todo', where: 'id = ?', whereArgs: [todo.id]);
   }
 
   Future<int> insertTodo(Todo todo) async {
     final db = await database;
-    return db.insert('Todo', todo.toJson());
+    return db.insert('todo', todo.toJson());
   }
 
   Future<int> insertTask(Task task) async {
@@ -142,11 +150,6 @@ class DBProvider {
     final db = await database;
     return db
         .update('Task', task.toJson(), where: 'id = ?', whereArgs: [task.id]);
-  }
-
-  Future<String> get _localPath async {
-    final directory = await getApplicationDocumentsDirectory();
-    return directory.path;
   }
 
   closeDB() {

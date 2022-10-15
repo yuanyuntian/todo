@@ -1,44 +1,42 @@
-// import 'dart:convert';
-// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
-
-// import 'package:objectdb/objectdb.dart';
-
+import 'package:todo/db/db_manager.dart';
 import 'package:todo/model/todo_model.dart';
-import 'package:todo/model/task_model.dart';
-import 'package:todo/db/db_provider.dart';
 
-class TodoListModel extends Model {
-  // ObjectDB db;
-  var _db = DBProvider.db;
-  List<Todo> get todos => _todos.toList();
-  List<Task> get tasks => _tasks.toList();
-  int getTaskCompletionPercent(Task task) =>
-      _taskCompletionPercentage[task.id] ?? 0;
-  int getTotalTodosFrom(Task task) =>
-      todos.where((it) => it.parent == task.id).length;
-  bool get isLoading => _isLoading;
+import '../model/task_model.dart';
+
+class ListModel extends Model {
+  var _db = DBManager.db;
 
   bool _isLoading = false;
   List<Task> _tasks = [];
   List<Todo> _todos = [];
   Map<String, int> _taskCompletionPercentage = Map();
 
-  static TodoListModel of(BuildContext context) =>
-      ScopedModel.of<TodoListModel>(context);
+  List<Todo> get todos => _todos.toList();
+  List<Task> get tasks => _tasks.toList();
+
+  int getTaskCompletionPercent(Task task) =>
+      _taskCompletionPercentage[task.id] ?? 0;
+
+  int getTotalTodosFrom(Task task) =>
+      todos.where((element) => element.parent == task.id).length;
+  bool get isLoading => _isLoading;
+
+  static ListModel of(BuildContext context) =>
+      ScopedModel.of<ListModel>(context);
 
   @override
-  void addListener(listener) {
+  void addListener(VoidCallback listener) {
+    // TODO: implement addListener
     super.addListener(listener);
-    // update data for every subscriber, especially for the first one
-    _isLoading = true;
     loadTodos();
+    _isLoading = true;
     notifyListeners();
   }
 
   void loadTodos() async {
-    var isNew = !await DBProvider.db.dbExists();
+    var isNew = !await DBManager.db.dbExists();
     if (isNew) {
       await _db.insertBulkTask(_db.tasks);
       await _db.insertBulkTodo(_db.todos);
@@ -124,8 +122,4 @@ class TodoListModel extends Model {
     }
     // return todos.fold(0, (total, todo) => todo.isCompleted ? total + scoreOfTask : total);
   }
-
-  // Future<int> _syncTodoToDB() async {
-  //   return await db.update({'user': 'guest'}, {'todos': _todos});
-  // }
 }

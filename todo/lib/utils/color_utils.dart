@@ -20,10 +20,10 @@ class ColorUtils {
     Colors.orange,
     Colors.deepOrange,
     Colors.brown,
-    Colors.grey
+    Colors.grey,
   ];
 
-  static final Map<int, Color> _color = {
+  static Map<int, Color> _color = {
     50: Color.fromRGBO(136, 14, 79, .1),
     100: Color.fromRGBO(136, 14, 79, .2),
     200: Color.fromRGBO(136, 14, 79, .3),
@@ -33,7 +33,7 @@ class ColorUtils {
     600: Color.fromRGBO(136, 14, 79, .7),
     700: Color.fromRGBO(136, 14, 79, .8),
     800: Color.fromRGBO(136, 14, 79, .9),
-    900: Color.fromRGBO(136, 14, 79, 1)
+    900: Color.fromRGBO(136, 14, 79, 1),
   };
 
   static Map<int, Color> _colors = Map();
@@ -43,8 +43,8 @@ class ColorUtils {
       return _colors;
     }
 
-    defaultColors.forEach((element) {
-      _colors[element.value] = element;
+    defaultColors.forEach((color) {
+      _colors[color.value] = color;
     });
     return _colors;
   }
@@ -56,5 +56,4 @@ class ColorUtils {
   static MaterialColor getMaterialColorFrom({required int id}) {
     return MaterialColor((colors[id] ?? Colors.blueGrey).value, _color);
   }
-
 }

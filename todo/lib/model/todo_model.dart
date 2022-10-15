@@ -1,7 +1,6 @@
-import 'package:meta/meta.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../utils/uuid.dart';
+import 'package:todo/utils/uuid.dart';
 
 part 'todo_model.g.dart';
 
